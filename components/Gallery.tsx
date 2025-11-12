@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import RotatingButton from './RotatingButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Monoton } from 'next/font/google';
+import { getImageUrl } from '@/lib/imageUtils';
 
 const monoton = Monoton({
   weight: '400',
@@ -13,25 +14,43 @@ const monoton = Monoton({
   display: 'swap',
 });
 
-const galleryImages = [
-  { src: '/IMG-20251111-WA0028.webp', alt: 'Diamond saw cutting reinforced wall' },
-  { src: '/IMG-20251111-WA0037.webp', alt: 'Crew preparing safety harnesses for elevated work' },
-  { src: '/IMG-20251111-WA0038.webp', alt: 'Detail of finished concrete surface after repair' },
-  { src: '/IMG-20251111-WA0032.webp', alt: 'Completed wall opening with clean edges' },
-  { src: '/IMG-20251111-WA0034.webp', alt: 'Concrete cutting tools arranged on site' },
-  { src: '/WhatsApp Image 2025-11-11 at 18.29.40_f2ca1be1.webp', alt: 'Precise plumbing and electrical installation work' },
-];
+interface GalleryImage {
+  _id: string;
+  image: string;
+  alt: string;
+  altAr?: string;
+  order: number;
+}
 
 export default function Gallery() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeFilter, setActiveFilter] = useState('all');
   const [windowWidth, setWindowWidth] = useState(0);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const res = await fetch('/api/gallery');
+        if (res.ok) {
+          const data = await res.json();
+          setGalleryImages(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch gallery images:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGalleryImages();
   }, []);
 
   const filters = [
@@ -57,110 +76,61 @@ export default function Gallery() {
         </motion.h2>
 
         {/* Image Gallery - Responsive masonry layout */}
-        <div className="mb-8 sm:mb-10 md:mb-12 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-          {/* Image 1 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0 }}
-            className="relative rounded-lg overflow-hidden border border-white aspect-[6/5] sm:aspect-[6/5]"
-          >
-            <Image
-              src={galleryImages[0].src}
-              alt={galleryImages[0].alt}
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-              priority
-            />
-          </motion.div>
-
-          {/* Image 2 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="relative rounded-lg overflow-hidden border border-white aspect-[6/5] sm:aspect-[6/5] sm:mt-8 md:mt-12"
-          >
-            <Image
-              src={galleryImages[1].src}
-              alt={galleryImages[1].alt}
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </motion.div>
-
-          {/* Image 3 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative rounded-lg overflow-hidden border border-white aspect-[3/4] sm:aspect-[3/4]"
-          >
-            <Image
-              src={galleryImages[2].src}
-              alt={galleryImages[2].alt}
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </motion.div>
-
-          {/* Image 4 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="relative rounded-lg overflow-hidden border border-white aspect-[3/4] sm:aspect-[3/4] sm:mt-8 md:mt-12"
-          >
-            <Image
-              src={galleryImages[3].src}
-              alt={galleryImages[3].alt}
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </motion.div>
-
-          {/* Image 5 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="relative rounded-lg overflow-hidden border border-white aspect-square sm:aspect-square"
-          >
-            <Image
-              src={galleryImages[4].src}
-              alt={galleryImages[4].alt}
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </motion.div>
-
-          {/* Image 6 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="relative rounded-lg overflow-hidden border border-white aspect-[3/4] sm:aspect-[3/4] sm:mt-8 md:mt-12"
-          >
-            <Image
-              src={galleryImages[5].src}
-              alt={galleryImages[5].alt}
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </motion.div>
-        </div>
+        {loading ? (
+          <div className="mb-8 sm:mb-10 md:mb-12 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="relative rounded-lg overflow-hidden border border-white/20 bg-gray-900 animate-pulse"
+                style={{
+                  aspectRatio: i === 0 || i === 1 ? '6/5' : i === 4 ? '1/1' : '3/4',
+                  marginTop: (i === 1 || i === 3 || i === 5) && windowWidth >= 640 ? '2rem' : '0',
+                }}
+              />
+            ))}
+          </div>
+        ) : galleryImages.length > 0 ? (
+          <div className="mb-8 sm:mb-10 md:mb-12 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+            {galleryImages.slice(0, 6).map((img, index) => {
+              // Define aspect ratios based on position (maintaining original layout)
+              const aspectRatios: { [key: number]: string } = {
+                0: '6/5',
+                1: '6/5',
+                2: '3/4',
+                3: '3/4',
+                4: '1/1',
+                5: '3/4',
+              };
+              const aspectRatio = aspectRatios[index] || '6/5';
+              const marginTop = [1, 3, 5].includes(index) && windowWidth >= 640 ? 'sm:mt-8 md:mt-12' : '';
+              
+              return (
+                <motion.div
+                  key={img._id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className={`relative rounded-lg overflow-hidden border border-white ${marginTop}`}
+                  style={{ aspectRatio }}
+                >
+                  <Image
+                    src={getImageUrl(img.image)}
+                    alt={language === 'ar' && img.altAr ? img.altAr : img.alt}
+                    fill
+                    sizes="(min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                    priority={index === 0}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mb-8 sm:mb-10 md:mb-12 text-center text-white/50 py-12">
+            {t('gallery.noImages') || 'No images available'}
+          </div>
+        )}
 
         {/* Filter Buttons */}
         <motion.div

@@ -26,15 +26,17 @@ function NavButton({ href, labelKey, t, onClick }: { href: string; labelKey: str
     <Link
       href={href}
       onClick={onClick}
-      className="relative block overflow-hidden rounded-full px-4 md:px-5 py-2.5 text-xs md:text-sm font-bold uppercase text-white whitespace-nowrap bg-gray-800/95 group focus-visible:outline-2 focus-visible:outline-[#FFDD00] focus-visible:outline-offset-2"
+      className="nav-button-slide block rounded-full px-4 md:px-5 py-2.5 text-xs md:text-sm font-bold uppercase whitespace-nowrap bg-gray-800/95 focus-visible:outline-2 focus-visible:outline-[#FFDD00] focus-visible:outline-offset-2"
       aria-label={label}
     >
-      {/* Hover effect - brand yellow slides from bottom to top */}
-      <div className="absolute inset-0 bg-[#FFDD00] rounded-full transform translate-y-full group-hover:translate-y-0 group-focus-visible:translate-y-0 transition-transform duration-300 ease-out" />
-      {/* Default white text - moves up on hover */}
-      <span className="relative z-10 block text-center text-white transform group-hover:-translate-y-[150%] group-focus-visible:-translate-y-[150%] transition-transform duration-300 ease-out">{label}</span>
-      {/* White text that slides up with the blue background */}
-      <span className="absolute inset-0 flex items-center justify-center text-white transform translate-y-full group-hover:translate-y-0 group-focus-visible:translate-y-0 transition-transform duration-300 ease-out z-20 font-bold uppercase">
+      {/* Hover effect - brand yellow button slides up from bottom to replace */}
+      <div className="nav-slide-bg" />
+      {/* Default white text - moves up and fades out on hover */}
+      <span className="nav-text-white block text-center text-white">
+        {label}
+      </span>
+      {/* Black text that slides up with the yellow background button */}
+      <span className="nav-text-black font-bold uppercase">
         {label}
       </span>
     </Link>

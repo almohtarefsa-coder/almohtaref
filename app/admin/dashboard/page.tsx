@@ -50,6 +50,14 @@ interface Banner {
   image: string;
 }
 
+interface GalleryImage {
+  _id: string;
+  image: string;
+  alt: string;
+  altAr?: string;
+  order: number;
+}
+
 interface Toast {
   id: string;
   message: string;
@@ -127,11 +135,12 @@ function ToastContainer({ toasts, onClose }: { toasts: Toast[]; onClose: (id: st
 export default function AdminDashboard() {
   const router = useRouter();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'testimonials' | 'banners'>('projects');
+  const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'testimonials' | 'banners' | 'gallery'>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -178,16 +187,18 @@ export default function AdminDashboard() {
 
   const fetchAllData = async () => {
     try {
-      const [projectsRes, servicesRes, testimonialsRes, bannersRes] = await Promise.all([
+      const [projectsRes, servicesRes, testimonialsRes, bannersRes, galleryRes] = await Promise.all([
         fetch('/api/projects', { headers: adminHeaders }),
         fetch('/api/services', { headers: adminHeaders }),
         fetch('/api/testimonials', { headers: adminHeaders }),
         fetch('/api/banners', { headers: adminHeaders }),
+        fetch('/api/gallery', { headers: adminHeaders }),
       ]);
       setProjects(await projectsRes.json());
       setServices(await servicesRes.json());
       setTestimonials(await testimonialsRes.json());
       setBanners(await bannersRes.json());
+      setGalleryImages(await galleryRes.json());
     } catch (error) {
       console.error('Failed to fetch data:', error);
       showToast('Failed to load data', 'error');
@@ -413,6 +424,7 @@ export default function AdminDashboard() {
             { id: 'services', label: t('admin.tabs.services') },
             { id: 'testimonials', label: t('admin.tabs.testimonials') },
             { id: 'banners', label: t('admin.tabs.banners') },
+            { id: 'gallery', label: t('admin.tabs.gallery') },
           ].map((tab, index) => (
             <motion.button
               key={tab.id}
@@ -525,6 +537,10 @@ export default function AdminDashboard() {
 
             {activeTab === 'banners' && (
               <BannersSection banners={banners} onUpdate={fetchAllData} showToast={showToast} />
+            )}
+
+            {activeTab === 'gallery' && (
+              <GallerySection galleryImages={galleryImages} onUpdate={fetchAllData} showToast={showToast} />
             )}
           </motion.div>
         </div>
@@ -1022,6 +1038,326 @@ function BannersSection({
           </motion.div>
         );
       })}
+    </div>
+  );
+}
+
+// Gallery Section Component
+function GallerySection({
+  galleryImages,
+  onUpdate,
+  showToast,
+}: {
+  galleryImages: GalleryImage[];
+  onUpdate: () => void;
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+}) {
+  const { t } = useLanguage();
+  const [editingImage, setEditingImage] = useState<string | null>(null);
+  const [imageFileId, setImageFileId] = useState('');
+  const [altText, setAltText] = useState('');
+  const [altTextAr, setAltTextAr] = useState('');
+  const [order, setOrder] = useState(0);
+  const [uploading, setUploading] = useState(false);
+
+  const adminHeaders = {
+    'X-Admin-Request': 'true',
+  };
+
+  const handleSaveGalleryImage = async (id?: string) => {
+    try {
+      const url = id ? `/api/gallery/${id}` : '/api/gallery';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 
+          'Content-Type': 'application/json',
+          ...adminHeaders,
+        },
+        body: JSON.stringify({ 
+          image: imageFileId, 
+          alt: altText,
+          altAr: altTextAr,
+          order: order || 0,
+        }),
+      });
+      if (res.ok) {
+        showToast(id ? 'Gallery image updated successfully' : 'Gallery image added successfully', 'success');
+        setEditingImage(null);
+        setImageFileId('');
+        setAltText('');
+        setAltTextAr('');
+        setOrder(0);
+        onUpdate();
+      } else {
+        showToast('Failed to save gallery image', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to save gallery image:', error);
+      showToast('Failed to save gallery image', 'error');
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: adminHeaders,
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        setImageFileId(result.fileId);
+        showToast('Image uploaded successfully', 'success');
+      } else {
+        showToast('Failed to upload image', 'error');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      showToast('Failed to upload image', 'error');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this gallery image?')) return;
+
+    try {
+      const res = await fetch(`/api/gallery/${id}`, {
+        method: 'DELETE',
+        headers: adminHeaders,
+      });
+      if (res.ok) {
+        showToast('Gallery image deleted successfully', 'success');
+        onUpdate();
+      } else {
+        showToast('Failed to delete gallery image', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to delete:', error);
+      showToast('Failed to delete gallery image', 'error');
+    }
+  };
+
+  const openEditForm = (image: GalleryImage) => {
+    setEditingImage(image._id);
+    setImageFileId(image.image);
+    setAltText(image.alt);
+    setAltTextAr(image.altAr || '');
+    setOrder(image.order);
+  };
+
+  const openNewForm = () => {
+    setEditingImage('new');
+    setImageFileId('');
+    setAltText('');
+    setAltTextAr('');
+    setOrder(galleryImages.length);
+  };
+
+  return (
+    <div className="space-y-3">
+      <AnimatePresence mode="popLayout">
+        {galleryImages.map((image, index) => (
+          <motion.div
+            key={image._id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, delay: index * 0.03 }}
+            whileHover={{ y: -2, transition: { duration: 0.2 } }}
+            className="group bg-gradient-to-r from-gray-900/50 to-gray-900/30 rounded-xl p-4 border border-white/10 hover:border-[#FFDD00]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-[#FFDD00]/10"
+          >
+            <div className="flex-1 min-w-0 flex items-center gap-4">
+              <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-lg overflow-hidden border border-white/20 flex-shrink-0 shadow-lg">
+                <img
+                  src={image.image.startsWith('/') || image.image.startsWith('http') ? image.image : `/api/images/${image.image}`}
+                  alt={image.alt}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white truncate group-hover:text-[#FFDD00] transition-colors mb-1">
+                  {image.alt}
+                </p>
+                {image.altAr && (
+                  <p className="text-white/70 text-sm truncate mb-1">{image.altAr}</p>
+                )}
+                <p className="text-white/50 text-xs">Order: {image.order}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <RippleButton
+                onClick={() => openEditForm(image)}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg text-sm font-medium hover:from-blue-500 hover:to-blue-400 transition-all duration-200 shadow-md hover:shadow-lg min-w-[70px]"
+              >
+                {t('admin.edit')}
+              </RippleButton>
+              <RippleButton
+                onClick={() => handleDelete(image._id)}
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg text-sm font-medium hover:from-red-500 hover:to-red-400 transition-all duration-200 shadow-md hover:shadow-lg min-w-[70px]"
+              >
+                {t('admin.delete')}
+              </RippleButton>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: galleryImages.length * 0.03 }}
+        className="pt-4 border-t border-white/10"
+      >
+        <RippleButton
+          onClick={openNewForm}
+          className="w-full bg-gradient-to-r from-[#FFDD00] to-[#FFE640] text-black px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:shadow-[#FFDD00]/30 transition-all duration-200"
+        >
+          {t('admin.addNew')} Gallery Image
+        </RippleButton>
+      </motion.div>
+
+      {/* Edit/Add Modal */}
+      <AnimatePresence>
+        {editingImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setEditingImage(null);
+                setImageFileId('');
+                setAltText('');
+                setAltTextAr('');
+                setOrder(0);
+              }
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#111114] rounded-2xl border border-white/10 p-4 md:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
+              <div className="flex justify-between items-start mb-6 gap-4">
+                <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#FFDD00] to-[#FFE640] bg-clip-text text-transparent flex-1">
+                  {editingImage === 'new' ? 'Add Gallery Image' : 'Edit Gallery Image'}
+                </h2>
+                <motion.button
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    setEditingImage(null);
+                    setImageFileId('');
+                    setAltText('');
+                    setAltTextAr('');
+                    setOrder(0);
+                  }}
+                  className="text-white/70 hover:text-white text-2xl flex-shrink-0 transition-colors"
+                >
+                  ×
+                </motion.button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">{t('admin.uploadImage')}</label>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      disabled={uploading}
+                      className="w-full bg-gray-800 border border-white/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-[#FFDD00] file:to-[#FFE640] file:text-black hover:file:from-[#FFE640] hover:file:to-[#FFDD00] transition-all duration-200 cursor-pointer disabled:opacity-50"
+                    />
+                  </motion.div>
+                  {uploading && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-2 flex items-center gap-2 text-sm text-white/70"
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-4 h-4 border-2 border-[#FFDD00]/30 border-t-[#FFDD00] rounded-full"
+                      />
+                      Uploading...
+                    </motion.div>
+                  )}
+                </div>
+                {(imageFileId || (editingImage !== 'new' && galleryImages.find(img => img._id === editingImage))) && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative w-full h-48 rounded-xl overflow-hidden border border-white/20 shadow-lg"
+                  >
+                    <img
+                      src={imageFileId ? `/api/images/${imageFileId}` : (galleryImages.find(img => img._id === editingImage)?.image.startsWith('/') || galleryImages.find(img => img._id === editingImage)?.image.startsWith('http') ? galleryImages.find(img => img._id === editingImage)?.image : `/api/images/${galleryImages.find(img => img._id === editingImage)?.image}`)}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                )}
+                <FormInput
+                  label="Alt Text (English)"
+                  value={altText}
+                  onChange={(value) => setAltText(value)}
+                  required
+                />
+                <FormInput
+                  label="Alt Text (Arabic) - Optional"
+                  value={altTextAr}
+                  onChange={(value) => setAltTextAr(value)}
+                />
+                <FormInput
+                  label="Order"
+                  type="number"
+                  value={order.toString()}
+                  onChange={(value) => setOrder(parseInt(value) || 0)}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 mt-6">
+                <RippleButton
+                  onClick={() => handleSaveGalleryImage(editingImage === 'new' ? undefined : editingImage)}
+                  disabled={!imageFileId && editingImage === 'new'}
+                  className="flex-1 bg-gradient-to-r from-[#FFDD00] to-[#FFE640] text-black px-6 py-3 rounded-xl font-semibold hover:from-[#FFE640] hover:to-[#FFDD00] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t('admin.save')}
+                </RippleButton>
+                <RippleButton
+                  onClick={() => {
+                    setEditingImage(null);
+                    setImageFileId('');
+                    setAltText('');
+                    setAltTextAr('');
+                    setOrder(0);
+                  }}
+                  className="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-gray-600 hover:to-gray-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  {t('admin.cancel')}
+                </RippleButton>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

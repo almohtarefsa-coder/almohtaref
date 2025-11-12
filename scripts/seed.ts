@@ -4,6 +4,7 @@ import Project from '../models/Project';
 import Testimonial from '../models/Testimonial';
 import Banner from '../models/Banner';
 import Admin from '../models/Admin';
+import Gallery from '../models/Gallery';
 
 const seedData = async () => {
   try {
@@ -16,6 +17,7 @@ const seedData = async () => {
     await Testimonial.deleteMany({});
     await Banner.deleteMany({});
     await Admin.deleteMany({});
+    await Gallery.deleteMany({});
 
     // Seed Services
     const services = await Service.insertMany([
@@ -270,6 +272,10 @@ const seedData = async () => {
     ]);
 
     console.log(`Seeded ${banners.length} banners`);
+
+    // Note: Gallery images should be seeded separately using npm run seed:gallery
+    // This is because gallery images need to be uploaded to GridFS from the public folder
+    console.log('Note: Run "npm run seed:gallery" to seed gallery images');
 
     // Seed Admin (default username: admin, password: admin123)
     const admin = await Admin.create({

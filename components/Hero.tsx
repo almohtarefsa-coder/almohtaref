@@ -47,7 +47,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -16 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="text-white text-sm md:text-lg tracking-[0.18em] font-semibold"
+                className="text-black text-sm md:text-lg tracking-[0.18em] font-semibold"
               >
                 {t('hero.tagline')}
               </motion.p>
@@ -60,7 +60,7 @@ export default function Hero() {
                 transition={{ duration: 0.4, ease: 'easeOut' }}
                 className="relative inline-flex h-[1.6em] md:h-[1.8em] items-center justify-center overflow-hidden"
               >
-                <span className="text-white text-base md:text-lg font-bold tracking-[0.25em]">
+                <span className="text-black text-base md:text-lg font-bold tracking-[0.25em]">
                   {t('hero.taglineAlt')}
                 </span>
               </motion.div>
@@ -88,11 +88,7 @@ export default function Hero() {
                     filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.6))',
                     fontFamily: 'var(--font-sixtyfour), "Sixtyfour", "Sixtyfour Variable", system-ui, -apple-system, sans-serif',
                     fontWeight: '400',
-                    backgroundImage: 'linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 8%, #2a2a2a 18%, #3a3a2f 28%, #4a4a35 38%, #5a5a3f 48%, #7a7a50 58%, #9a9a60 68%, #c0c070 78%, #e0dd00 88%, #ffdd00 100%)',
-                    WebkitBackgroundClip: 'text',
-                    backgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    color: 'transparent',
+                    color: '#FFDD00',
                     lineHeight: '1.1',
                     whiteSpace: 'nowrap'
                   }}
@@ -100,7 +96,7 @@ export default function Hero() {
                   ALMOHTAREF
                 </span>
                 <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-                <span className="mt-5 block text-xs md:text-sm tracking-[0.6em] uppercase text-white/90">
+                <span className="mt-5 block text-xs md:text-sm tracking-[0.6em] uppercase text-white">
                   {t('hero.alwaysReady')}
                 </span>
               </div>

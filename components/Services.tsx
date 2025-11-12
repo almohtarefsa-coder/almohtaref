@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 function PhoneIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M3 5C3 3.89543 3.89543 3 5 3H8.27924C8.70967 3 9.09181 3.27543 9.22792 3.68377L10.7257 8.17721C10.8831 8.64932 10.6694 9.16531 10.2243 9.38787L7.96701 10.5165C9.06925 12.9612 11.0388 14.9308 13.4835 16.033L14.6121 13.7757C14.8347 13.3306 15.3507 13.1169 15.8228 13.2743L20.3162 14.7721C20.7246 14.9082 21 15.2903 21 15.7208V19C21 20.1046 20.1046 21 19 21H18C9.71573 21 3 14.2843 3 6V5Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M3 5C3 3.89543 3.89543 3 5 3H8.27924C8.70967 3 9.09181 3.27543 9.22792 3.68377L10.7257 8.17721C10.8831 8.64932 10.6694 9.16531 10.2243 9.38787L7.96701 10.5165C9.06925 12.9612 11.0388 14.9308 13.4835 16.033L14.6121 13.7757C14.8347 13.3306 15.3507 13.1169 15.8228 13.2743L20.3162 14.7721C20.7246 14.9082 21 15.2903 21 15.7208V19C21 20.1046 20.1046 21 19 21H18C9.71573 21 3 14.2843 3 6V5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -17,9 +17,9 @@ function PhoneIcon() {
 function BanknoteIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="6" width="20" height="12" rx="2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <circle cx="12" cy="12" r="2" fill="white"/>
-      <path d="M6 10H6.01M18 10H18.01" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+      <rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="12" r="2" fill="currentColor"/>
+      <path d="M6 10H6.01M18 10H18.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }
@@ -27,10 +27,10 @@ function BanknoteIcon() {
 function ChairIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M5 12V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M5 12C5 10.8954 5.89543 10 7 10H17C18.1046 10 19 10.8954 19 12V12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M9 10V6C9 4.89543 9.89543 4 11 4H13C14.1046 4 15 4.89543 15 6V10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M5 19H3M19 19H21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5 12V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5 12C5 10.8954 5.89543 10 7 10H17C18.1046 10 19 10.8954 19 12V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9 10V6C9 4.89543 9.89543 4 11 4H13C14.1046 4 15 4.89543 15 6V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5 19H3M19 19H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -38,7 +38,7 @@ function ChairIcon() {
 function CloudIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M18 10H16.74C16.3659 8.551 15.2143 7.24999 13.7041 6.49548C12.1939 5.74097 10.4465 5.59219 8.81472 6.08517C7.18298 6.57815 5.79138 7.6771 4.93147 9.15272C4.07157 10.6283 3.79971 12.3691 4.16852 13.9971C4.53733 15.6251 5.52142 17.0194 6.91447 17.9013C8.30752 18.7832 10.0117 19.0889 11.6463 18.7527C13.2809 18.4165 14.7294 17.4594 15.6801 16.08M18 10C18.5304 10 19.0391 10.2107 19.4142 10.5858C19.7893 10.9609 20 11.4696 20 12C20 12.5304 19.7893 13.0391 19.4142 13.4142C19.0391 13.7893 18.5304 14 18 14H6C5.46957 14 4.96086 13.7893 4.58579 13.4142C4.21071 13.0391 4 12.5304 4 12C4 11.4696 4.21071 10.9609 4.58579 10.5858C4.96086 10.2107 5.46957 10 6 10M18 10C18.3145 10 18.6215 9.94404 18.9097 9.83706C19.1979 9.73008 19.4623 9.57403 19.6906 9.37659C19.9189 9.17915 20.1072 8.94377 20.2462 8.68203C20.3852 8.42029 20.4723 8.13698 20.5029 7.84568C20.5335 7.55438 20.5071 7.2603 20.4252 6.97871C20.3433 6.69712 20.2075 6.43288 20.0251 6.20026C19.8427 5.96764 19.6173 5.77099 19.361 5.62091C19.1047 5.47082 18.8224 5.37008 18.5291 5.32431C18.2358 5.27854 17.9371 5.28858 17.6478 5.35389C17.3585 5.4192 17.0841 5.53841 16.8399 5.70528C16.5957 5.87215 16.3862 6.08338 16.2231 6.32743" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M18 10H16.74C16.3659 8.551 15.2143 7.24999 13.7041 6.49548C12.1939 5.74097 10.4465 5.59219 8.81472 6.08517C7.18298 6.57815 5.79138 7.6771 4.93147 9.15272C4.07157 10.6283 3.79971 12.3691 4.16852 13.9971C4.53733 15.6251 5.52142 17.0194 6.91447 17.9013C8.30752 18.7832 10.0117 19.0889 11.6463 18.7527C13.2809 18.4165 14.7294 17.4594 15.6801 16.08M18 10C18.5304 10 19.0391 10.2107 19.4142 10.5858C19.7893 10.9609 20 11.4696 20 12C20 12.5304 19.7893 13.0391 19.4142 13.4142C19.0391 13.7893 18.5304 14 18 14H6C5.46957 14 4.96086 13.7893 4.58579 13.4142C4.21071 13.0391 4 12.5304 4 12C4 11.4696 4.21071 10.9609 4.58579 10.5858C4.96086 10.2107 5.46957 10 6 10M18 10C18.3145 10 18.6215 9.94404 18.9097 9.83706C19.1979 9.73008 19.4623 9.57403 19.6906 9.37659C19.9189 9.17915 20.1072 8.94377 20.2462 8.68203C20.3852 8.42029 20.4723 8.13698 20.5029 7.84568C20.5335 7.55438 20.5071 7.2603 20.4252 6.97871C20.3433 6.69712 20.2075 6.43288 20.0251 6.20026C19.8427 5.96764 19.6173 5.77099 19.361 5.62091C19.1047 5.47082 18.8224 5.37008 18.5291 5.32431C18.2358 5.27854 17.9371 5.28858 17.6478 5.35389C17.3585 5.4192 17.0841 5.53841 16.8399 5.70528C16.5957 5.87215 16.3862 6.08338 16.2231 6.32743" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -138,8 +138,10 @@ export default function Services() {
                 style={{
                   padding: 'clamp(1rem, 4vw, 2rem)',
                   borderRadius: isActive ? '50%' : 'clamp(28px, 6vw, 45px)',
-                  border: isActive || isHovered 
-                    ? '2px solid #3b82f6' 
+                  border: isActive 
+                    ? '2px solid #FFDD00' 
+                    : isHovered 
+                    ? '2px solid #FFDD00' 
                     : '1px solid rgba(255, 255, 255, 0.4)',
                   width: isActive ? 'clamp(160px, min(25vw, 300px), 300px)' : 'clamp(140px, min(23vw, 280px), 280px)',
                   height: isActive ? 'clamp(160px, min(25vw, 300px), 300px)' : 'auto',
@@ -150,11 +152,12 @@ export default function Services() {
                   justifyContent: 'center',
                   position: 'relative',
                   flexShrink: 0,
-                  backgroundColor: '#111114',
+                  backgroundColor: isActive ? 'rgba(255, 221, 0, 0.1)' : isHovered ? 'rgba(255, 221, 0, 0.05)' : '#111114',
                   maxWidth: '100%',
+                  transition: 'all 0.3s ease',
                 }}
               >
-                {/* Iridescent glow effect for active card */}
+                {/* Golden glow effect for active card */}
                 {isActive && (
                   <div
                     style={{
@@ -162,8 +165,23 @@ export default function Services() {
                       width: '100%',
                       height: '100%',
                       borderRadius: '50%',
-                      background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.3), rgba(34, 197, 94, 0.2))',
+                      background: 'radial-gradient(circle, rgba(255, 221, 0, 0.3), rgba(255, 221, 0, 0.15), rgba(255, 221, 0, 0.05))',
                       filter: 'blur(20px)',
+                      zIndex: 0,
+                    }}
+                  />
+                )}
+                
+                {/* Golden glow effect for hovered card */}
+                {isHovered && !isActive && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: isActive ? '50%' : 'clamp(28px, 6vw, 45px)',
+                      background: 'radial-gradient(circle, rgba(255, 221, 0, 0.15), rgba(255, 221, 0, 0.05), transparent)',
+                      filter: 'blur(15px)',
                       zIndex: 0,
                     }}
                   />
@@ -178,6 +196,8 @@ export default function Services() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    color: isActive || isHovered ? '#FFDD00' : 'white',
+                    transition: 'color 0.3s ease',
                   }}
                 >
                   {getIcon(service.icon)}
@@ -185,10 +205,12 @@ export default function Services() {
                 
                 {/* Title */}
                 <h4 
-                  className="text-base md:text-lg font-semibold text-center text-white"
+                  className="text-base md:text-lg font-semibold text-center"
                   style={{ 
                     position: 'relative',
                     zIndex: 1,
+                    color: isActive || isHovered ? '#FFDD00' : 'white',
+                    transition: 'color 0.3s ease',
                   }}
                 >
                   {service.title}

@@ -18,6 +18,7 @@ export const CACHE_TAGS = {
   SERVICES: 'services',
   IMAGES: 'images',
   BANNERS: 'banners',
+  GALLERY: 'gallery',
 } as const;
 
 /**
@@ -49,6 +50,14 @@ export function invalidateImageCache(imageId: string) {
 export function invalidateBannersCache() {
   revalidatePath('/api/banners');
   revalidatePath('/api/banners', 'page');
+}
+
+/**
+ * Invalidate cache for gallery
+ */
+export function invalidateGalleryCache() {
+  revalidatePath('/api/gallery');
+  revalidatePath('/api/gallery', 'page');
 }
 
 /**
