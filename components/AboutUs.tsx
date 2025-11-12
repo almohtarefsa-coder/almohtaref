@@ -24,6 +24,12 @@ interface Testimonial {
   approved: boolean;
 }
 
+interface Banner {
+  _id: string;
+  page: string;
+  image: string;
+}
+
 export default function AboutUs() {
   const { t, language } = useLanguage();
   const [reviewForm, setReviewForm] = useState({
@@ -36,6 +42,7 @@ export default function AboutUs() {
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [banner, setBanner] = useState<string>('/banner.webp'); // Default fallback
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -49,10 +56,28 @@ export default function AboutUs() {
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', shouldReduceMotion ? '0%' : '50%']);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  // Fetch approved testimonials from backend
+  // Fetch banner and testimonials from backend
   useEffect(() => {
+    fetchBanner();
     fetchTestimonials();
   }, []);
+
+  const fetchBanner = async () => {
+    try {
+      const res = await fetch('/api/banners?page=about', {
+        // Disable cache to always get fresh data
+        cache: 'no-store',
+        next: { revalidate: 0 }
+      });
+      const data = await res.json();
+      if (data && data.length > 0 && data[0].image) {
+        setBanner(data[0].image);
+      }
+    } catch (error) {
+      console.error('Failed to fetch banner:', error);
+      // Keep default banner on error
+    }
+  };
 
   const fetchTestimonials = async () => {
     try {
@@ -229,11 +254,12 @@ export default function AboutUs() {
           className="absolute inset-0"
         >
           <Image
-            src="/banner.webp"
+            src={banner}
             alt="Concrete architecture background"
             fill
             priority
             className="object-cover"
+            key={banner}
           />
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black/90" />

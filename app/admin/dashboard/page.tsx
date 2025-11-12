@@ -876,13 +876,16 @@ function BannersSection({
 
   const handleSaveBanner = async (page: string) => {
     try {
+      // Save the full image path, not just the fileId
+      const imagePath = imageFileId ? `/api/images/${imageFileId}` : banners.find(b => b.page === page)?.image || '';
+
       const res = await fetch('/api/banners', {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           ...adminHeaders,
         },
-        body: JSON.stringify({ page, image: imageFileId }),
+        body: JSON.stringify({ page, image: imagePath }),
       });
       if (res.ok) {
         showToast('Banner updated successfully', 'success');

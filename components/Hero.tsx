@@ -14,26 +14,51 @@ const sixtyfour = Sixtyfour({
   variable: '--font-sixtyfour',
 });
 
+interface Banner {
+  _id: string;
+  page: string;
+  image: string;
+}
 
 export default function Hero() {
   const { t } = useLanguage();
   const [showFullSentence, setShowFullSentence] = useState(true);
+  const [banner, setBanner] = useState<string>('/banner.webp'); // Default fallback
 
   useEffect(() => {
+    fetchBanner();
     const toggle = setInterval(() => {
       setShowFullSentence((prev) => !prev);
     }, 2600);
     return () => clearInterval(toggle);
   }, []);
 
+  const fetchBanner = async () => {
+    try {
+      const res = await fetch('/api/banners?page=home', {
+        // Disable cache to always get fresh data
+        cache: 'no-store',
+        next: { revalidate: 0 }
+      });
+      const data = await res.json();
+      if (data && data.length > 0 && data[0].image) {
+        setBanner(data[0].image);
+      }
+    } catch (error) {
+      console.error('Failed to fetch banner:', error);
+      // Keep default banner on error
+    }
+  };
+
   return (
     <section className={`relative min-h-screen flex items-center justify-center overflow-hidden bg-black ${sixtyfour.variable}`}>
       <Image
-        src="/banner.webp"
+        src={banner}
         alt="Concrete architecture background"
         fill
         priority
         className="absolute inset-0 object-cover"
+        key={banner}
       />
       <div className="absolute inset-0 bg-black/70" />
 

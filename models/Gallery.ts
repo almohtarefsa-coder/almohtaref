@@ -34,3 +34,4 @@ const GallerySchema: Schema = new Schema(
 
 export default mongoose.models.Gallery || mongoose.model<IGallery>('Gallery', GallerySchema);
 
+

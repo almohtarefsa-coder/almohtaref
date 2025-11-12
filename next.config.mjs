@@ -33,7 +33,7 @@ const nextConfig = {
               "form-action 'self'",
               "frame-src 'self'",
               "object-src 'none'",
-              "require-trusted-types-for 'script'",
+              "require-trusted-types-for 'script'; report-uri /api/csp-report",
             ].join('; '),
           },
           {

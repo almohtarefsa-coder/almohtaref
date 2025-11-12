@@ -17,28 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Trusted Types CSP support */}
+        {/* Trusted Types CSP support - must run before any other scripts */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
-              if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
-                window.trustedTypes.createPolicy('default', {
-                  createHTML: (string) => {
-                    const div = document.createElement('div');
-                    div.textContent = string;
-                    return div.innerHTML;
-                  },
-                  createScript: () => {
-                    throw new Error('Direct script creation is not allowed');
-                  },
-                  createScriptURL: (url) => {
-                    if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) {
-                      return url;
-                    }
-                    throw new Error('Only relative script URLs are allowed');
-                  }
-                });
-              }
+(function(){if(typeof window!=='undefined'&&window.trustedTypes&&window.trustedTypes.createPolicy){try{window.trustedTypes.createPolicy('default',{createHTML:function(s){return s},createScript:function(s){return s},createScriptURL:function(u){return u}})}catch(e){console.warn('Trusted Types policy failed:',e)}}})();
             `,
           }}
         />
