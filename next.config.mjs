@@ -13,6 +13,10 @@ const nextConfig = {
       },
     ],
     unoptimized: true,
+    // Allow images from API routes
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async headers() {
     return [

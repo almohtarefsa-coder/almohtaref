@@ -40,9 +40,30 @@ export default function Hero() {
         cache: 'no-store',
         next: { revalidate: 0 }
       });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch banner: ${res.status}`);
+      }
       const data = await res.json();
       if (data && data.length > 0 && data[0].image) {
-        setBanner(data[0].image);
+        // Normalize banner path: if it's already a full path, use it; otherwise prepend /api/images/
+        const imagePath = data[0].image;
+        let normalizedPath: string;
+        
+        if (imagePath.startsWith('http')) {
+          // External URL, use as-is
+          normalizedPath = imagePath;
+        } else if (imagePath.startsWith('/api/images/')) {
+          // Already a full API path, use as-is
+          normalizedPath = imagePath;
+        } else if (imagePath.startsWith('/')) {
+          // Local path (like /banner.webp), use as-is
+          normalizedPath = imagePath;
+        } else {
+          // Just a fileId, prepend /api/images/
+          normalizedPath = `/api/images/${imagePath}`;
+        }
+        
+        setBanner(normalizedPath);
       }
     } catch (error) {
       console.error('Failed to fetch banner:', error);
@@ -59,6 +80,12 @@ export default function Hero() {
         priority
         className="absolute inset-0 object-cover"
         key={banner}
+        unoptimized
+        onError={(e) => {
+          console.error('Banner image failed to load:', banner);
+          // Fallback to default banner
+          e.currentTarget.src = '/banner.webp';
+        }}
       />
       <div className="absolute inset-0 bg-black/70" />
 
