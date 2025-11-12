@@ -7,7 +7,7 @@ export default function FloatingButtons() {
     <div className="fixed bottom-6 left-6 z-40 flex flex-col gap-4">
       {/* Phone Button */}
       <motion.a
-        href="tel:+966501234567"
+        href="tel:+966536137573"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
@@ -23,7 +23,7 @@ export default function FloatingButtons() {
 
       {/* WhatsApp Button */}
       <motion.a
-        href="https://wa.me/966501234567"
+        href="https://wa.me/966536137573"
         target="_blank"
         rel="noopener noreferrer"
         initial={{ opacity: 0, x: -20 }}

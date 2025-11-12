@@ -31,7 +31,7 @@ export default function PromotionalBanner() {
       <div className="flex flex-col sm:flex-row gap-4">
         {/* SEND WHATS UP Button */}
         <a
-          href="https://wa.me/1234567890"
+          href="https://wa.me/966536137573"
           target="_blank"
           rel="noopener noreferrer"
         >

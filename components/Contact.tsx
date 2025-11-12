@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import PhoneNumber from './PhoneNumber';
 
 export default function Contact() {
   const { t } = useLanguage();
@@ -257,7 +258,7 @@ export default function Contact() {
               <div className="space-y-6">
                 {/* Phone */}
                 <motion.a
-                  href="tel:+966501234567"
+                  href="tel:+966536137573"
                   whileHover={{ scale: 1.02 }}
                   className="block bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-gray-700 hover:border-[#FFDD00]/60 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-[#FFDD00] focus-visible:outline-offset-2"
                   aria-label={`Call us at ${t('contact.phoneNumber')}`}
@@ -270,7 +271,9 @@ export default function Contact() {
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">{t('contact.phone')}</h3>
-                      <p className="text-white/85">{t('contact.phoneNumber')}</p>
+                      <p className="text-white/85">
+                        <PhoneNumber phoneNumber={t('contact.phoneNumber')} />
+                      </p>
                       <p className="text-white/85">{t('contact.available247')}</p>
                     </div>
                   </div>
@@ -278,7 +281,7 @@ export default function Contact() {
 
                 {/* WhatsApp */}
                 <motion.a
-                  href="https://wa.me/966501234567"
+                  href="https://wa.me/966536137573"
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}
@@ -293,7 +296,9 @@ export default function Contact() {
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">{t('contact.whatsapp')}</h3>
-                      <p className="text-white/85">{t('contact.phoneNumber')}</p>
+                      <p className="text-white/85">
+                        <PhoneNumber phoneNumber={t('contact.phoneNumber')} />
+                      </p>
                       <p className="text-white/85">{t('contact.quickResponse')}</p>
                     </div>
                   </div>

@@ -22,11 +22,11 @@ const translations = {
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('ar');
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // Get language from localStorage or default to 'en'
+    // Get language from localStorage or default to 'ar'
     if (typeof window !== 'undefined') {
       const savedLanguage = localStorage.getItem('language') as Language;
       if (savedLanguage === 'en' || savedLanguage === 'ar') {
