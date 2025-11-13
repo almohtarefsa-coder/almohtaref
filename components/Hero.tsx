@@ -88,10 +88,10 @@ export default function Hero() {
       <div className="relative z-10 w-full max-w-[min(1200px,90vw)] px-4 sm:px-6 md:px-10 py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 flex flex-col items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 text-center safe-area-left safe-area-right">
         <div className="min-h-[2.4rem] md:min-h-[2.8rem] flex items-center justify-center mt-8">
           <p
-            className={`inline-flex items-center justify-center rounded-full bg-[#FFDD00] px-5 py-2 uppercase tracking-[0.18em] text-black transition-colors ${
+            className={`inline-flex items-center justify-center rounded-full bg-[#FFDD00] px-5 py-2 uppercase tracking-[0.12em] text-black transition-colors ${
               isArabic
-                ? 'text-base sm:text-lg md:text-xl font-bold'
-                : 'text-sm sm:text-base md:text-lg font-semibold'
+                ? 'text-lg sm:text-xl md:text-2xl font-bold'
+                : 'text-base sm:text-lg md:text-xl font-semibold'
             }`}
           >
             {t('hero.staticBanner')}
