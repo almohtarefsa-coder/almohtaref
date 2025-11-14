@@ -8,7 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const serviceImages = [
   '/drilling-service.webp',
   '/cutting-reinforced-service.webp',
-  '/cutting-concrete-service.webp',
+  '/almohtaref/IMG-20251114-WA0017.jpg',
   '/repairingCracks.webp',
   '/DeliberateService.webp',
 ];

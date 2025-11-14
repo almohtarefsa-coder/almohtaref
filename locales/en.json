@@ -48,6 +48,9 @@
       "maintenance": "Maintenance and repair"
     }
   },
+  "videos": {
+    "heading": "Our Videos"
+  },
   "faq": {
     "title": "Questions",
     "heading": "All the Important Details",
@@ -272,7 +275,8 @@
       "services": "Services",
       "testimonials": "Testimonials",
       "banners": "Banners",
-      "gallery": "Gallery"
+      "gallery": "Gallery",
+      "videos": "Videos"
     },
     "addNew": "Add New",
     "edit": "Edit",

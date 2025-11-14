@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
-    "seed:gallery": "tsx scripts/seed-gallery.ts"
+    "seed:gallery": "tsx scripts/seed-gallery.ts",
+    "seed:videos": "tsx scripts/seed-videos.ts"
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",

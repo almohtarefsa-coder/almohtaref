@@ -58,6 +58,17 @@ interface GalleryImage {
   order: number;
 }
 
+interface Video {
+  _id: string;
+  video: string;
+  title: string;
+  titleAr?: string;
+  description?: string;
+  descriptionAr?: string;
+  thumbnail?: string;
+  order: number;
+}
+
 interface Toast {
   id: string;
   message: string;
@@ -135,12 +146,13 @@ function ToastContainer({ toasts, onClose }: { toasts: Toast[]; onClose: (id: st
 export default function AdminDashboard() {
   const router = useRouter();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'testimonials' | 'banners' | 'gallery'>('projects');
+  const [activeTab, setActiveTab] = useState<'projects' | 'services' | 'testimonials' | 'banners' | 'gallery' | 'videos'>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -187,18 +199,20 @@ export default function AdminDashboard() {
 
   const fetchAllData = async () => {
     try {
-      const [projectsRes, servicesRes, testimonialsRes, bannersRes, galleryRes] = await Promise.all([
+      const [projectsRes, servicesRes, testimonialsRes, bannersRes, galleryRes, videosRes] = await Promise.all([
         fetch('/api/projects', { headers: adminHeaders }),
         fetch('/api/services', { headers: adminHeaders }),
         fetch('/api/testimonials', { headers: adminHeaders }),
         fetch('/api/banners', { headers: adminHeaders }),
         fetch('/api/gallery', { headers: adminHeaders }),
+        fetch('/api/videos', { headers: adminHeaders }),
       ]);
       setProjects(await projectsRes.json());
       setServices(await servicesRes.json());
       setTestimonials(await testimonialsRes.json());
       setBanners(await bannersRes.json());
       setGalleryImages(await galleryRes.json());
+      setVideos(await videosRes.json());
     } catch (error) {
       console.error('Failed to fetch data:', error);
       showToast('Failed to load data', 'error');
@@ -426,6 +440,7 @@ export default function AdminDashboard() {
             { id: 'testimonials', label: t('admin.tabs.testimonials') },
             { id: 'banners', label: t('admin.tabs.banners') },
             { id: 'gallery', label: t('admin.tabs.gallery') },
+            { id: 'videos', label: t('admin.tabs.videos') || 'Videos' },
           ].map((tab, index) => (
             <motion.button
               key={tab.id}
@@ -542,6 +557,10 @@ export default function AdminDashboard() {
 
             {activeTab === 'gallery' && (
               <GallerySection galleryImages={galleryImages} onUpdate={fetchAllData} showToast={showToast} />
+            )}
+
+            {activeTab === 'videos' && (
+              <VideosSection videos={videos} onUpdate={fetchAllData} showToast={showToast} />
             )}
           </motion.div>
         </div>
@@ -1351,6 +1370,447 @@ function GallerySection({
                     setImageFileId('');
                     setAltText('');
                     setAltTextAr('');
+                    setOrder(0);
+                  }}
+                  className="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-gray-600 hover:to-gray-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  {t('admin.cancel')}
+                </RippleButton>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// Videos Section Component
+function VideosSection({
+  videos,
+  onUpdate,
+  showToast,
+}: {
+  videos: Video[];
+  onUpdate: () => void;
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+}) {
+  const { t } = useLanguage();
+  const [editingVideo, setEditingVideo] = useState<string | null>(null);
+  const [videoFileId, setVideoFileId] = useState('');
+  const [title, setTitle] = useState('');
+  const [titleAr, setTitleAr] = useState('');
+  const [description, setDescription] = useState('');
+  const [descriptionAr, setDescriptionAr] = useState('');
+  const [thumbnailFileId, setThumbnailFileId] = useState('');
+  const [order, setOrder] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+
+  const adminHeaders = {
+    'X-Admin-Request': 'true',
+  };
+
+  const handleSaveVideo = async (id?: string) => {
+    try {
+      const url = id ? `/api/videos/${id}` : '/api/videos';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 
+          'Content-Type': 'application/json',
+          ...adminHeaders,
+        },
+        body: JSON.stringify({ 
+          video: videoFileId, 
+          title,
+          titleAr,
+          description,
+          descriptionAr,
+          thumbnail: thumbnailFileId,
+          order: order || 0,
+        }),
+      });
+      if (res.ok) {
+        showToast(id ? 'Video updated successfully' : 'Video added successfully', 'success');
+        setEditingVideo(null);
+        setVideoFileId('');
+        setTitle('');
+        setTitleAr('');
+        setDescription('');
+        setDescriptionAr('');
+        setThumbnailFileId('');
+        setOrder(0);
+        onUpdate();
+      } else {
+        showToast('Failed to save video', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to save video:', error);
+      showToast('Failed to save video', 'error');
+    }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/videos/upload', {
+        method: 'POST',
+        headers: adminHeaders,
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        setVideoFileId(result.fileId);
+        showToast('Video uploaded successfully', 'success');
+      } else {
+        showToast('Failed to upload video', 'error');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      showToast('Failed to upload video', 'error');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingThumbnail(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: adminHeaders,
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        setThumbnailFileId(result.fileId);
+        showToast('Thumbnail uploaded successfully', 'success');
+      } else {
+        showToast('Failed to upload thumbnail', 'error');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      showToast('Failed to upload thumbnail', 'error');
+    } finally {
+      setUploadingThumbnail(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this video?')) return;
+
+    try {
+      const res = await fetch(`/api/videos/${id}`, {
+        method: 'DELETE',
+        headers: adminHeaders,
+      });
+      if (res.ok) {
+        showToast('Video deleted successfully', 'success');
+        onUpdate();
+      } else {
+        showToast('Failed to delete video', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to delete:', error);
+      showToast('Failed to delete video', 'error');
+    }
+  };
+
+  const openEditForm = (video: Video) => {
+    setEditingVideo(video._id);
+    setVideoFileId(video.video);
+    setTitle(video.title);
+    setTitleAr(video.titleAr || '');
+    setDescription(video.description || '');
+    setDescriptionAr(video.descriptionAr || '');
+    setThumbnailFileId(video.thumbnail || '');
+    setOrder(video.order);
+  };
+
+  const openNewForm = () => {
+    setEditingVideo('new');
+    setVideoFileId('');
+    setTitle('');
+    setTitleAr('');
+    setDescription('');
+    setDescriptionAr('');
+    setThumbnailFileId('');
+    setOrder(videos.length);
+  };
+
+  return (
+    <div className="space-y-3">
+      <AnimatePresence mode="popLayout">
+        {videos.map((video, index) => (
+          <motion.div
+            key={video._id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, delay: index * 0.03 }}
+            whileHover={{ y: -2, transition: { duration: 0.2 } }}
+            className="group bg-gradient-to-r from-gray-900/50 to-gray-900/30 rounded-xl p-4 border border-white/10 hover:border-[#FFDD00]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-[#FFDD00]/10"
+          >
+            <div className="flex-1 min-w-0 flex items-center gap-4">
+              <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-lg overflow-hidden border border-white/20 flex-shrink-0 shadow-lg">
+                {video.thumbnail ? (
+                  <img
+                    src={video.thumbnail.startsWith('/') || video.thumbnail.startsWith('http') ? video.thumbnail : `/api/images/${video.thumbnail}`}
+                    alt={video.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-white/50" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white truncate group-hover:text-[#FFDD00] transition-colors mb-1">
+                  {video.title}
+                </p>
+                {video.titleAr && (
+                  <p className="text-white/70 text-sm truncate mb-1">{video.titleAr}</p>
+                )}
+                <p className="text-white/50 text-xs">Order: {video.order}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <RippleButton
+                onClick={() => openEditForm(video)}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg text-sm font-medium hover:from-blue-500 hover:to-blue-400 transition-all duration-200 shadow-md hover:shadow-lg min-w-[70px]"
+              >
+                {t('admin.edit')}
+              </RippleButton>
+              <RippleButton
+                onClick={() => handleDelete(video._id)}
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg text-sm font-medium hover:from-red-500 hover:to-red-400 transition-all duration-200 shadow-md hover:shadow-lg min-w-[70px]"
+              >
+                {t('admin.delete')}
+              </RippleButton>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: videos.length * 0.03 }}
+        className="pt-4 border-t border-white/10"
+      >
+        <RippleButton
+          onClick={openNewForm}
+          className="w-full bg-gradient-to-r from-[#FFDD00] to-[#FFE640] text-black px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:shadow-[#FFDD00]/30 transition-all duration-200"
+        >
+          {t('admin.addNew')} Video
+        </RippleButton>
+      </motion.div>
+
+      {/* Edit/Add Modal */}
+      <AnimatePresence>
+        {editingVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setEditingVideo(null);
+                setVideoFileId('');
+                setTitle('');
+                setTitleAr('');
+                setDescription('');
+                setDescriptionAr('');
+                setThumbnailFileId('');
+                setOrder(0);
+              }
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#111114] rounded-2xl border border-white/10 p-4 md:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
+              <div className="flex justify-between items-start mb-6 gap-4">
+                <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#FFDD00] to-[#FFE640] bg-clip-text text-transparent flex-1">
+                  {editingVideo === 'new' ? 'Add Video' : 'Edit Video'}
+                </h2>
+                <motion.button
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    setEditingVideo(null);
+                    setVideoFileId('');
+                    setTitle('');
+                    setTitleAr('');
+                    setDescription('');
+                    setDescriptionAr('');
+                    setThumbnailFileId('');
+                    setOrder(0);
+                  }}
+                  className="text-white/70 hover:text-white text-2xl flex-shrink-0 transition-colors"
+                >
+                  ×
+                </motion.button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">Upload Video</label>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      disabled={uploading}
+                      className="w-full bg-gray-800 border border-white/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-[#FFDD00] file:to-[#FFE640] file:text-black hover:file:from-[#FFE640] hover:file:to-[#FFDD00] transition-all duration-200 cursor-pointer disabled:opacity-50"
+                    />
+                  </motion.div>
+                  {uploading && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-2 flex items-center gap-2 text-sm text-white/70"
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-4 h-4 border-2 border-[#FFDD00]/30 border-t-[#FFDD00] rounded-full"
+                      />
+                      Uploading video...
+                    </motion.div>
+                  )}
+                </div>
+                {videoFileId && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative w-full rounded-xl overflow-hidden border border-white/20 shadow-lg"
+                    style={{ aspectRatio: '16/9' }}
+                  >
+                    <video
+                      src={`/api/videos/stream/${videoFileId}`}
+                      controls
+                      className="w-full h-full"
+                    />
+                  </motion.div>
+                )}
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">Upload Thumbnail (Optional)</label>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleThumbnailUpload}
+                      disabled={uploadingThumbnail}
+                      className="w-full bg-gray-800 border border-white/20 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-[#FFDD00] file:to-[#FFE640] file:text-black hover:file:from-[#FFE640] hover:file:to-[#FFDD00] transition-all duration-200 cursor-pointer disabled:opacity-50"
+                    />
+                  </motion.div>
+                  {uploadingThumbnail && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-2 flex items-center gap-2 text-sm text-white/70"
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-4 h-4 border-2 border-[#FFDD00]/30 border-t-[#FFDD00] rounded-full"
+                      />
+                      Uploading thumbnail...
+                    </motion.div>
+                  )}
+                </div>
+                {thumbnailFileId && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative w-full h-48 rounded-xl overflow-hidden border border-white/20 shadow-lg"
+                  >
+                    <img
+                      src={`/api/images/${thumbnailFileId}`}
+                      alt="Thumbnail preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                )}
+                <FormInput
+                  label="Title (English)"
+                  value={title}
+                  onChange={(value) => setTitle(value)}
+                  required
+                />
+                <FormInput
+                  label="Title (Arabic) - Optional"
+                  value={titleAr}
+                  onChange={(value) => setTitleAr(value)}
+                />
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">Description (English) - Optional</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="w-full bg-gray-800/50 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFDD00] focus:shadow-lg focus:shadow-[#FFDD00]/20 transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/70 mb-2">Description (Arabic) - Optional</label>
+                  <textarea
+                    value={descriptionAr}
+                    onChange={(e) => setDescriptionAr(e.target.value)}
+                    rows={3}
+                    className="w-full bg-gray-800/50 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFDD00] focus:shadow-lg focus:shadow-[#FFDD00]/20 transition-all duration-200"
+                  />
+                </div>
+                <FormInput
+                  label="Order"
+                  type="number"
+                  value={order.toString()}
+                  onChange={(value) => setOrder(parseInt(value) || 0)}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 mt-6">
+                <RippleButton
+                  onClick={() => handleSaveVideo(editingVideo === 'new' ? undefined : editingVideo)}
+                  disabled={!videoFileId && editingVideo === 'new'}
+                  className="flex-1 bg-gradient-to-r from-[#FFDD00] to-[#FFE640] text-black px-6 py-3 rounded-xl font-semibold hover:from-[#FFE640] hover:to-[#FFDD00] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t('admin.save')}
+                </RippleButton>
+                <RippleButton
+                  onClick={() => {
+                    setEditingVideo(null);
+                    setVideoFileId('');
+                    setTitle('');
+                    setTitleAr('');
+                    setDescription('');
+                    setDescriptionAr('');
+                    setThumbnailFileId('');
                     setOrder(0);
                   }}
                   className="flex-1 bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-gray-600 hover:to-gray-500 transition-all duration-200 shadow-lg hover:shadow-xl"

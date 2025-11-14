@@ -91,11 +91,7 @@ export default function SuccessStories() {
                         border: '1px solid rgba(255, 255, 255, 0.3)'
                       }}
                     >
-                      <Link
-                        href="/contact"
-                        className="flex items-center gap-2 text-white hover:opacity-90 transition-opacity group/btn"
-                        aria-label={t('successStories.knowMore')}
-                      >
+                      <button className="flex items-center gap-2 text-white hover:opacity-90 transition-opacity group/btn">
                         <span className="text-sm md:text-base font-semibold tracking-wide uppercase">{t('successStories.knowMore')}</span>
                         <svg
                           width="20"
@@ -113,7 +109,7 @@ export default function SuccessStories() {
                             strokeLinejoin="round"
                           />
                         </svg>
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
