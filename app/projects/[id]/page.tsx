@@ -18,6 +18,7 @@ interface Project {
   description: string;
   descriptionAr: string;
   image: string;
+  galleryImages?: string[];
   tags: string[];
   tagsAr: string[];
   category: string;
@@ -324,6 +325,49 @@ export default function ProjectDetailPage() {
                 </p>
               </motion.div>
             </div>
+
+            {/* Gallery Images */}
+            {project.galleryImages && project.galleryImages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="mb-8"
+              >
+                <motion.h2
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="text-2xl md:text-3xl font-bold mb-6 text-[#FFDD00]"
+                >
+                  {language === 'ar' ? 'معرض الصور' : 'Project Gallery'}
+                </motion.h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {project.galleryImages.map((imageId, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                      className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group cursor-pointer"
+                    >
+                      <Image
+                        src={getImageUrl(imageId)}
+                        alt={`${language === 'ar' ? project.titleAr : project.title} - Gallery ${index + 1}`}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* External Link Button */}
             {project.link && (

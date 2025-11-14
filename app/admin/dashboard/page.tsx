@@ -312,6 +312,7 @@ export default function AdminDashboard() {
       initialData.description = '';
       initialData.descriptionAr = '';
       initialData.image = '';
+      initialData.galleryImages = [];
       initialData.category = '';
       initialData.categoryAr = '';
       initialData.year = '';
@@ -1468,6 +1469,153 @@ function ImageUploadField({
   );
 }
 
+// Gallery Images Upload Component (up to 4 images)
+function GalleryImagesUpload({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string[];
+  onChange: (images: string[]) => void;
+}) {
+  const [uploading, setUploading] = useState<number | null>(null);
+  const [previews, setPreviews] = useState<(string | null)[]>([]);
+
+  useEffect(() => {
+    // Create array with 4 slots, mapping value array to slots
+    const previewUrls: (string | null)[] = [];
+    for (let i = 0; i < 4; i++) {
+      if (i < value.length && value[i]) {
+        const imgId = value[i];
+        if (imgId.startsWith('/') || imgId.startsWith('http')) {
+          previewUrls.push(imgId);
+        } else {
+          previewUrls.push(`/api/images/${imgId}`);
+        }
+      } else {
+        previewUrls.push(null);
+      }
+    }
+    setPreviews(previewUrls);
+  }, [value]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(index);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const adminHeaders = {
+        'X-Admin-Request': 'true',
+      };
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: adminHeaders,
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        const newImages = [...value];
+        // If replacing an existing image at this slot position
+        if (index < newImages.length) {
+          newImages[index] = result.fileId;
+        } else {
+          // Adding a new image (append to end)
+          newImages.push(result.fileId);
+        }
+        // Ensure we don't exceed 4 images
+        const filtered = newImages.filter(img => img).slice(0, 4);
+        onChange(filtered);
+      } else {
+        alert('Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image');
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const handleRemove = (index: number) => {
+    const newImages = [...value];
+    newImages.splice(index, 1);
+    onChange(newImages);
+  };
+
+  return (
+    <div>
+      <label className="block text-sm text-white/70 mb-2">
+        {label} <span className="text-white/50 text-xs">(Max 4 images)</span>
+      </label>
+      <div className="grid grid-cols-2 gap-4">
+        {[0, 1, 2, 3].map((index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative"
+          >
+            {previews[index] ? (
+              <div className="relative group">
+                <div className="relative w-full h-32 rounded-xl overflow-hidden border border-white/20 shadow-lg">
+                  <img src={previews[index] || ''} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover" />
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleRemove(index)}
+                  className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  ×
+                </motion.button>
+              </div>
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, index)}
+                  disabled={uploading === index || value.length >= 4}
+                  className="w-full bg-gray-800 border border-white/20 rounded-xl px-3 py-2 text-white text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gradient-to-r file:from-[#FFDD00] file:to-[#FFE640] file:text-black hover:file:from-[#FFE640] hover:file:to-[#FFDD00] transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                {uploading === index && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 flex items-center justify-center bg-gray-800/80 rounded-xl"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="w-5 h-5 border-2 border-[#FFDD00]/30 border-t-[#FFDD00] rounded-full"
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+      {value.length > 0 && (
+        <p className="text-xs text-white/50 mt-2">
+          {value.length} of 4 images uploaded
+        </p>
+      )}
+    </div>
+  );
+}
+
 // Enhanced Form Input Component
 function FormInput({
   label,
@@ -1608,6 +1756,11 @@ function FormModal({
                 label={t('admin.form.image')}
                 value={data.image || ''}
                 onChange={(fileId) => updateField('image', fileId)}
+              />
+              <GalleryImagesUpload
+                label="Gallery Images"
+                value={data.galleryImages || []}
+                onChange={(images) => updateField('galleryImages', images)}
               />
               <FormInput
                 label={t('admin.form.category')}

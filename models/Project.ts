@@ -6,6 +6,7 @@ export interface IProject extends Document {
   description: string;
   descriptionAr: string;
   image: string;
+  galleryImages?: string[];
   tags: string[];
   tagsAr: string[];
   category: string;
@@ -38,6 +39,16 @@ const ProjectSchema: Schema = new Schema(
     image: {
       type: String,
       required: true,
+    },
+    galleryImages: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function(v: string[]) {
+          return v.length <= 4;
+        },
+        message: 'Gallery images cannot exceed 4 images',
+      },
     },
     tags: {
       type: [String],
@@ -73,6 +84,7 @@ const ProjectSchema: Schema = new Schema(
 );
 
 export default mongoose.models.Project || mongoose.model<IProject>('Project', ProjectSchema);
+
 
 
 

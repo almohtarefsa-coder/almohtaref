@@ -52,6 +52,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       invalidateImageCache(body.image);
     }
     
+    // If gallery images were updated, invalidate their caches
+    if (body.galleryImages && Array.isArray(body.galleryImages)) {
+      body.galleryImages.forEach((imageId: string) => {
+        if (imageId) {
+          invalidateImageCache(imageId);
+        }
+      });
+    }
+    
     return NextResponse.json(project);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
@@ -73,6 +82,15 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     // If project had an image, invalidate image cache
     if (project.image) {
       invalidateImageCache(project.image);
+    }
+    
+    // If project had gallery images, invalidate their caches
+    if (project.galleryImages && Array.isArray(project.galleryImages)) {
+      project.galleryImages.forEach((imageId: string) => {
+        if (imageId) {
+          invalidateImageCache(imageId);
+        }
+      });
     }
     
     return NextResponse.json({ message: 'Project deleted successfully' });
