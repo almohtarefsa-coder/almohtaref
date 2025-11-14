@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useForm, ValidationError } from '@formspree/react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import PhoneNumber from './PhoneNumber';
 
 export default function Contact() {
   const { t } = useLanguage();
+  const [state, formspreeSubmit] = useForm('xgvrolpg');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,7 +18,6 @@ export default function Contact() {
   });
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -25,13 +26,8 @@ export default function Contact() {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // Reset form after submission
-    setTimeout(() => {
+  useEffect(() => {
+    if (state.succeeded) {
       setFormData({
         name: '',
         email: '',
@@ -39,10 +35,8 @@ export default function Contact() {
         service: '',
         message: '',
       });
-      setIsSubmitting(false);
-      alert(t('contact.form.success'));
-    }, 1000);
-  };
+    }
+  }, [state.succeeded]);
 
   const services = [
     t('servicesList.concreteCutting'),
@@ -108,7 +102,12 @@ export default function Contact() {
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-[#FFDD00]">
                   {t('contact.sendMessage')}
                 </h2>
-                <form onSubmit={handleSubmit} className="space-y-6 flex-1 flex flex-col" noValidate>
+                {state.succeeded && (
+                  <p className="mb-4 rounded-xl border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-300">
+                    {t('contact.form.success')}
+                  </p>
+                )}
+                <form onSubmit={formspreeSubmit} className="space-y-6 flex-1 flex flex-col" noValidate>
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium mb-2 text-white/90">
                       {t('contact.form.name')}
@@ -129,6 +128,7 @@ export default function Contact() {
                       placeholder={t('contact.form.namePlaceholder')}
                       required
                     />
+                    <ValidationError prefix="Name" field="name" errors={state.errors} className="mt-2 text-sm text-red-400" />
                   </div>
 
                   <div>
@@ -151,6 +151,7 @@ export default function Contact() {
                       placeholder={t('contact.form.emailPlaceholder')}
                       required
                     />
+                    <ValidationError prefix="Email" field="email" errors={state.errors} className="mt-2 text-sm text-red-400" />
                   </div>
 
                   <div>
@@ -173,6 +174,7 @@ export default function Contact() {
                       placeholder={t('contact.form.phonePlaceholder')}
                       required
                     />
+                    <ValidationError prefix="Phone" field="phone" errors={state.errors} className="mt-2 text-sm text-red-400" />
                   </div>
 
                   <div>
@@ -200,6 +202,7 @@ export default function Contact() {
                         </option>
                       ))}
                     </select>
+                    <ValidationError prefix="Service" field="service" errors={state.errors} className="mt-2 text-sm text-red-400" />
                   </div>
 
                   <div>
@@ -222,17 +225,18 @@ export default function Contact() {
                       placeholder={t('contact.form.messagePlaceholder')}
                       required
                     />
+                    <ValidationError prefix="Message" field="message" errors={state.errors} className="mt-2 text-sm text-red-400" />
                   </div>
 
                   <motion.button
                     type="submit"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    disabled={isSubmitting}
+                    disabled={state.submitting}
                     className="w-full bg-gradient-to-r from-[#FFDD00] to-[#FFE640] text-black font-bold py-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#FFDD00]/30 uppercase tracking-wide text-sm disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#FFDD00] focus-visible:outline-offset-2 mt-auto"
-                    aria-label={isSubmitting ? t('contact.form.sending') : t('contact.form.send')}
+                    aria-label={state.submitting ? t('contact.form.sending') : t('contact.form.send')}
                   >
-                    {isSubmitting ? t('contact.form.sending') : t('contact.form.send')}
+                    {state.submitting ? t('contact.form.sending') : t('contact.form.send')}
                   </motion.button>
                 </form>
               </div>
