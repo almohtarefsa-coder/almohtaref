@@ -52,10 +52,23 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <head>
+        {/* TrustedTypes Fix */}
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `(function(){if(typeof window!=='undefined'&&window.trustedTypes&&window.trustedTypes.createPolicy){try{window.trustedTypes.createPolicy('default',{createHTML:function(s){return s},createScript:function(s){return s},createScriptURL:function(u){return u}})}catch(e){console.warn('Trusted Types policy failed:',e)}}})();`,
+          }}
+        />
+        {/* Google Tag Manager (AW-17727676448) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17727676448"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-17727676448');
+            `,
           }}
         />
       </head>
