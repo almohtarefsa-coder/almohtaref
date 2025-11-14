@@ -24,7 +24,7 @@ interface GalleryImage {
 
 export default function Gallery() {
   const { t, language } = useLanguage();
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('cutting');
   const [windowWidth, setWindowWidth] = useState(0);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +54,6 @@ export default function Gallery() {
   }, []);
 
   const filters = [
-    { key: 'all', label: t('gallery.filters.all') },
     { key: 'cutting', label: t('gallery.filters.cutting') },
     { key: 'perforation', label: t('gallery.filters.perforation') },
   ];
@@ -153,8 +152,7 @@ export default function Gallery() {
               letterSpacing={0}
               isActive={activeFilter === filter.key}
               useGradient={true}
-              onClick={() => setActiveFilter(filter.key)}
-              className={activeFilter === filter.key ? 'pointer-events-auto' : 'pointer-events-auto'}
+              className="pointer-events-none cursor-default"
             />
           ))}
         </motion.div>
