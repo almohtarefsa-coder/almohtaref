@@ -10,20 +10,28 @@ const retryUpload = async (
   filename: string,
   contentType: string,
   maxRetries = 3,
-  delay = 2000
+  delay = 3000
 ): Promise<string> => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`Upload attempt ${attempt}/${maxRetries} for ${filename}...`);
+      // Ensure fresh connection for each attempt
+      const { uploadVideo } = await import('../lib/gridfs');
       return await uploadVideo(videoBuffer, filename, contentType);
     } catch (error: any) {
+      console.error(`Attempt ${attempt} error:`, error.message || error);
       if (attempt === maxRetries) {
         throw error;
       }
-      console.log(`Attempt ${attempt} failed, retrying in ${delay}ms...`);
+      console.log(`Waiting ${delay}ms before retry...`);
       await new Promise(resolve => setTimeout(resolve, delay));
-      // Reconnect to database
+      // Reconnect to database and reset connection cache
+      const mongoose = await import('mongoose');
+      if (mongoose.default.connection.readyState !== 0) {
+        await mongoose.default.connection.close();
+      }
       await connectDB();
+      console.log('Reconnected to database');
     }
   }
   throw new Error('Upload failed after all retries');
@@ -109,6 +117,12 @@ const seedVideos = async () => {
 
         seededVideos.push(video);
         console.log(`✓ Created video document: ${videoInfo.title}`);
+        
+        // Small delay between videos to avoid connection issues
+        if (videoInfo !== videoData[videoData.length - 1]) {
+          console.log('Waiting 2 seconds before next upload...');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
       } catch (error: any) {
         console.error(`✗ Error processing ${videoInfo.filename}:`, error.message || error);
         // Continue with next video

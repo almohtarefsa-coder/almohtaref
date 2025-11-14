@@ -107,6 +107,8 @@ export async function uploadVideo(
   filename: string,
   contentType: string
 ): Promise<string> {
+  // Ensure we have a fresh connection
+  await connectDB();
   const bucket = await getVideosBucket();
   
   return new Promise((resolve, reject) => {
@@ -114,14 +116,32 @@ export async function uploadVideo(
       contentType,
     });
 
+    let resolved = false;
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        uploadStream.destroy();
+        reject(new Error('Upload timeout after 60 seconds'));
+      }
+    }, 60000); // 60 second timeout
+
     uploadStream.on('finish', () => {
-      resolve(uploadStream.id.toString());
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeout);
+        resolve(uploadStream.id.toString());
+      }
     });
 
     uploadStream.on('error', (error) => {
-      reject(error);
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeout);
+        reject(error);
+      }
     });
 
+    // Write the buffer - GridFS will handle chunking internally
     uploadStream.end(file);
   });
 }
